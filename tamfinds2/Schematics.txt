@@ -1,0 +1,130 @@
+-- Run this in phpMyAdmin > SQL tab (XAMPP), with the `lostnfound` database selected.
+-- Safe to run whether or not the tables already exist. Nothing is dropped.
+
+USE `lostnfound`;
+
+-- 1) users: created if missing...
+CREATE TABLE IF NOT EXISTS `users` (
+    `User_ID`       INT AUTO_INCREMENT PRIMARY KEY,
+    `Username`      VARCHAR(512) NOT NULL,
+    `Password`      VARCHAR(255) NOT NULL,
+    `Email`         VARCHAR(512) NOT NULL,
+    `Role`          VARCHAR(20)  NOT NULL DEFAULT 'user',
+    `Reset_Code`    VARCHAR(255) NULL,
+    `Reset_Sent_At` DATETIME     NULL
+);
+
+-- ...and if it already existed, these make it match what the PHP expects:
+--   Username / Email hold ENCRYPTED text (long), Password holds a HASH,
+--   Reset_Code holds an ENCRYPTED 5-digit code (it was a number before),
+--   Reset_Sent_At is new (used for the 40-second resend timer).
+ALTER TABLE `users`
+    MODIFY `Username`   VARCHAR(512) NOT NULL,
+    MODIFY `Email`      VARCHAR(512) NOT NULL,
+    MODIFY `Reset_Code` VARCHAR(255) NULL,
+    ADD COLUMN IF NOT EXISTS `Password`      VARCHAR(255) NOT NULL AFTER `Username`,
+    ADD COLUMN IF NOT EXISTS `Reset_Sent_At` DATETIME NULL,
+    ADD UNIQUE INDEX IF NOT EXISTS `uq_users_username` (`Username`),
+    ADD UNIQUE INDEX IF NOT EXISTS `uq_users_email` (`Email`);
+
+-- Make sure Password is wide enough for a hash (runs after the ALTER above, so the column exists):
+ALTER TABLE `users` MODIFY `Password` VARCHAR(255) NOT NULL;
+
+-- Old test accounts were saved without encryption, so they can't log in anymore.
+-- Delete them and sign up again (remove the two dashes to run these):
+-- UPDATE `users` SET `Reset_Code` = NULL;
+-- DELETE FROM `users`;
+
+-- 2) student_info: ONLY run this if you do NOT have the table yet.
+--    If you already have it, skip this and make the column names in signup.php
+--    (the student_info INSERT) match yours.
+CREATE TABLE IF NOT EXISTS `student_info` (
+    `Student_ID` INT AUTO_INCREMENT PRIMARY KEY,
+    `User_ID`    INT NOT NULL,
+    `First_Name` VARCHAR(512) NOT NULL,   -- encrypted
+    `Last_Name`  VARCHAR(512) NOT NULL,   -- encrypted
+    FOREIGN KEY (`User_ID`) REFERENCES `users`(`User_ID`) ON DELETE CASCADE
+);
+
+
+-- =====================================================================
+-- REPORT PAGE TABLES (report.php)
+-- =====================================================================
+
+-- 3) report_items: one row per reported item.
+--    If you already have this table, nothing happens here (section 6 below adds the new columns to it).
+CREATE TABLE IF NOT EXISTS `report_items` (
+    `Report_ID`     INT AUTO_INCREMENT PRIMARY KEY,
+    `Unique_ID`     INT NULL,                            -- public ID used by the Home page "View details" links (1000901, 1000902, ...)
+    `Student_ID`    INT NOT NULL,                        -- FK -> student_info
+    `User_ID`       INT NOT NULL,                        -- FK -> users (the poster)
+    `Item_Name`     VARCHAR(100) NOT NULL,
+    `Category`      VARCHAR(50)  NOT NULL,
+    `Description`   TEXT         NOT NULL,               -- max 500 characters (checked in PHP)
+    `Location_Lost` VARCHAR(150) NOT NULL,
+    `Datetime_Lost` DATETIME     NOT NULL,
+    `Picture`       LONGBLOB     NULL,                   -- optional photo (saved as a resized JPEG)
+    `Status`        VARCHAR(20)  NOT NULL DEFAULT 'Unresolved',   -- Unresolved / Resolved
+    `Posted_At`     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `Edited_At`     DATETIME     NULL,                   -- set when the poster edits the report (shows "edited")
+    UNIQUE INDEX `uq_report_unique_id` (`Unique_ID`),
+    INDEX (`Posted_At`),
+    INDEX (`Status`),
+    INDEX (`Category`),
+    FOREIGN KEY (`Student_ID`) REFERENCES `student_info`(`Student_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`User_ID`)    REFERENCES `users`(`User_ID`) ON DELETE CASCADE
+);
+
+-- 4) report_comments: comments AND replies.
+--    Parent_ID is empty for a normal comment, and holds the Comment_ID it answers for a reply.
+--    NOTE: if you already made a report_comments table with other columns, run this first
+--    (remove the two dashes), because the page expects exactly these columns:
+-- DROP TABLE IF EXISTS `report_comment_likes`;
+-- DROP TABLE IF EXISTS `report_comments`;
+CREATE TABLE IF NOT EXISTS `report_comments` (
+    `Comment_ID`   INT AUTO_INCREMENT PRIMARY KEY,
+    `Report_ID`    INT NOT NULL,                         -- which report it belongs to
+    `User_ID`      INT NOT NULL,                         -- who wrote it
+    `Parent_ID`    INT NULL,                             -- NULL = comment, number = reply to that comment
+    `Comment_Text` VARCHAR(500) NOT NULL,
+    `Posted_At`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `Edited_At`    DATETIME NULL,                        -- set when the writer edits it (shows "edited")
+    INDEX (`Report_ID`),
+    INDEX (`Parent_ID`),
+    FOREIGN KEY (`Report_ID`) REFERENCES `report_items`(`Report_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`User_ID`)   REFERENCES `users`(`User_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`Parent_ID`) REFERENCES `report_comments`(`Comment_ID`) ON DELETE CASCADE
+);
+
+-- 5) report_comment_likes: the heart button. One row = one person liked one comment.
+--    The pair (Comment_ID, User_ID) is the primary key, so nobody can like the same comment twice.
+CREATE TABLE IF NOT EXISTS `report_comment_likes` (
+    `Comment_ID` INT NOT NULL,
+    `User_ID`    INT NOT NULL,
+    `Liked_At`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`Comment_ID`, `User_ID`),
+    FOREIGN KEY (`Comment_ID`) REFERENCES `report_comments`(`Comment_ID`) ON DELETE CASCADE,
+    FOREIGN KEY (`User_ID`)    REFERENCES `users`(`User_ID`) ON DELETE CASCADE
+);
+
+
+-- =====================================================================
+-- 6) UPGRADE for an EXISTING database (Home carousel "View details", edit post, edit comment)
+--    Safe to run more than once. Nothing is dropped and no data is lost.
+-- =====================================================================
+
+-- report_items: Unique_ID + Edited_At
+ALTER TABLE `report_items`
+    ADD COLUMN IF NOT EXISTS `Unique_ID` INT NULL AFTER `Report_ID`,
+    ADD COLUMN IF NOT EXISTS `Edited_At` DATETIME NULL;
+
+-- Number the reports that already exist: Report_ID 1 -> 1000901, 2 -> 1000902, 3 -> 1000903 ...
+-- (new reports get theirs automatically from report.php, continuing the same count)
+UPDATE `report_items` SET `Unique_ID` = `Report_ID` + 1000900 WHERE `Unique_ID` IS NULL;
+
+ALTER TABLE `report_items`
+    ADD UNIQUE INDEX IF NOT EXISTS `uq_report_unique_id` (`Unique_ID`);
+
+-- report_comments: Edited_At
+ALTER TABLE `report_comments`
+    ADD COLUMN IF NOT EXISTS `Edited_At` DATETIME NULL;
