@@ -19,7 +19,10 @@
 
 <header class="topbar">
     <div class="brand">
-        <a class="logo" href="studentlist">TamFinds</a>
+        <a class="logo" href="studentlist">
+            <img class="logo-img" src="images/logo-navbar.png" alt="" width="40" height="40">
+            <span class="logo-text">TamFinds</span>
+        </a>
         <span class="admin-tag">Admin</span>
     </div>
 

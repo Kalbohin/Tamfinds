@@ -19,7 +19,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TamFinds - About</title>
+    <title>About</title>
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="TamFinds">
     <meta property="og:description" content="Lost something? Let’s help you find it.">

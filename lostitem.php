@@ -207,7 +207,17 @@ $listStmt->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TamFinds - Lost Items</title>
+    <title>Lost Items</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="TamFinds">
+    <meta property="og:description" content="Lost something? Let’s help you find it.">
+    <meta property="og:image" content="https://www.tamfinds.online/images/logo.jpg">
+    <meta property="og:url" content="https://www.tamfinds.online/">
+    <meta property="og:type" content="website">
+
+    <!-- Icon for tab -->
+    <link href="images/logo.jpg" rel="icon" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Rubik+Mono+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css?v=<?php echo filemtime('css/style.css'); ?>">

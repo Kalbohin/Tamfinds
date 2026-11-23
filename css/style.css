@@ -34,16 +34,30 @@ body.plain { background: #fff; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--brand-gradient);
+    background: #0F4A0A;
 }
 
 .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     font-family: "Rubik Mono One", "Arial Black", sans-serif;
     font-size: 22px;
     letter-spacing: 3px;
     text-transform: uppercase;
     text-decoration: none;
     color: #ffc20e;
+}
+
+/* Logo picture beside the TamFinds title.
+   Height scales with the screen width (30px on phones -> 44px on big screens);
+   width follows automatically so the picture is never stretched. */
+.logo-img {
+    display: block;
+    height: clamp(30px, 4.5vw, 44px);
+    width: auto;
+    flex-shrink: 0;
+    object-fit: contain;
 }
 
 .about {
@@ -865,7 +879,8 @@ html { scroll-behavior: smooth; }
     .nav a,
     .nav summary { font-size: 11px; letter-spacing: 1px; }
     .topbar { padding: 8px 16px; }
-    .logo { font-size: 17px; letter-spacing: 2px; }
+    .logo { font-size: 17px; letter-spacing: 2px; gap: 8px; }
+    .logo-img { height: 28px; }
     .about { font-size: 11px; }
     .card { padding-left: 24px; padding-right: 24px; }
 }
@@ -1019,7 +1034,7 @@ body.page-soft { background: #f5f8f2; }
 .chip input:focus-visible + span { outline: 3px solid var(--green); outline-offset: 2px; }
 
 .filter-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid #e9efe5; }
-.reset-link { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--link); }
+.reset-link { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: red; }
 
 .btn--report { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; white-space: nowrap; border-radius: 14px; }
 .btn--sm { padding: 10px 18px; font-size: 12px; border-radius: 12px; }

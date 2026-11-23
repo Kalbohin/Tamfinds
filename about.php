@@ -17,7 +17,7 @@
         ["name" => "Felix Sevilla",       "title" => "Database Management", "photo" => "images/felix.webp"],
         ["name" => "Clein Nebrida",       "title" => "Support Developer", "photo" => "images/clein.jpg"],
         ["name" => "Donnovan De Guzman",  "title" => "Support Developer", "photo" => "images/donnovan.jpg"],
-        ["name" => "Clerish Montalla",    "title" => "UI Designer", "photo" => ""],
+        ["name" => "Clerish Montalla",    "title" => "UI Designer", "photo" => "images/clerish.png"],
         ["name" => "Evanna Mae Luciano",  "title" => "UI Designer", "photo" => "images/evanna.jpg"]
     ];
     // ----------------------------------------
@@ -43,7 +43,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TamFinds - About</title>
+    <title>About</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="TamFinds">
+    <meta property="og:description" content="Lost something? Let’s help you find it.">
+    <meta property="og:image" content="https://www.tamfinds.online/images/logo.jpg">
+    <meta property="og:url" content="https://www.tamfinds.online/">
+    <meta property="og:type" content="website">
+
+    <!-- Icon for tab -->
+    <link href="images/logo.jpg" rel="icon" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Rubik+Mono+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap-grid.min.css" integrity="sha384-VIeCCV0aVHr99fkXDSmzLRuJhJWQXe4bDXs6hgg6w6zOTbtAWr8RqSNWu4a2ef9p" crossorigin="anonymous">

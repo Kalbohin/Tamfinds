@@ -8,7 +8,10 @@
 <script>document.documentElement.className += " js";</script>
 
 <header class="topbar">
-    <a class="logo" href="dashboard">TamFinds</a>
+    <a class="logo" href="dashboard">
+        <img class="logo-img" src="images/logo-navbar.png" alt="" width="40" height="40">
+        <span class="logo-text">TamFinds</span>
+    </a>
 
     <!-- Hamburger button (only visible on phones / small screens) -->
     <button type="button" class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
