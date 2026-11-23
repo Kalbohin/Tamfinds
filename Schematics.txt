@@ -1,0 +1,31 @@
+TAMFINDS DATABASE  (database name: lostnfound)
+================================================
+
+The database files are in the  database/  folder:
+
+  1) You ALREADY have the database running (your own export from Oct 20, 2026)?
+       In phpMyAdmin: click the lostnfound database > SQL tab, then paste and run, IN THIS ORDER:
+         a) database/migrate_existing_db.sql     (report page tables, optional photo, reset code fixes)
+         b) database/migrate_admin_students.sql  (admin interface: the student list)
+       Both keep all your data and are safe to run twice.
+
+  2) A NEW or EMPTY database (a teammate's PC, a fresh start)?
+       Create an empty database named  lostnfound , open it, and Import:
+         database/lostnfound.sql                 (everything, already up to date)
+
+TABLES
+  users                 accounts. Role is "user" or "admin".
+                        Username / Email are encrypted. Password is hashed.
+                        Reset_Code / Reset_Sent_At are empty unless someone asked for a password reset.
+  student_info          the OFFICIAL STUDENT LIST. The admin adds students here (Students page).
+                        StudentInfo_ID, StudentNo_ID, First/Last/Middle_Name  -> encrypted
+                        Age, Education_Level, Strand_Program, Year_Level      -> plain (used by the filters)
+                        User_ID is empty until the student signs up. Signing up fills it in.
+  report_items          lost item reports (Picture is optional)
+  report_comments       comments and replies (Parent_ID)
+  report_comment_likes  the heart button
+  inventory_items       for the Received Items page (not built yet, untouched)
+
+MAKING SOMEONE AN ADMIN
+  phpMyAdmin > lostnfound > users > edit that row > set Role to  admin
+  (The sign up page always creates "user" accounts.)
